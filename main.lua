@@ -131,10 +131,10 @@ local function tween(object, duration, properties, style, direction)
 end
 
 local Backdrop = new("Frame", {
-    BackgroundColor3 = COLORS.backdrop,
-    BackgroundTransparency = 0.22,
+    BackgroundTransparency = 1,
     BorderSizePixel = 0,
     Size = UDim2.fromScale(1, 1),
+    Active = false,
 }, LoaderGui)
 
 local Card = new("Frame", {
@@ -179,6 +179,7 @@ stroke(Icon, COLORS.pink, 1.5)
 
 local Title = new("TextLabel", {
     BackgroundTransparency = 1,
+    Active = true,
     Position = UDim2.new(0, 0, 0, 66),
     Size = UDim2.new(1, 0, 0, 34),
     Font = Enum.Font.GothamBold,
@@ -247,23 +248,27 @@ local dragStart
 local startPosition
 
 Title.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPosition = Card.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
+    local isMouse = input.UserInputType == Enum.UserInputType.MouseButton1
+    local isTouch = input.UserInputType == Enum.UserInputType.Touch
+    if not isMouse and not isTouch then return end
+
+    dragging = true
+    dragStart = input.Position
+    startPosition = Card.Position
+
+    input.Changed:Connect(function()
+        if input.UserInputState == Enum.UserInputState.End then
+            dragging = false
+        end
+    end)
 end)
 
 UserInputService.InputChanged:Connect(function(input)
     if not dragging then return end
-    if input.UserInputType ~= Enum.UserInputType.MouseMovement
-        and input.UserInputType ~= Enum.UserInputType.Touch then return end
+    local isMouse = input.UserInputType == Enum.UserInputType.MouseMovement
+    local isTouch = input.UserInputType == Enum.UserInputType.Touch
+    if not isMouse and not isTouch then return end
+
     local delta = input.Position - dragStart
     Card.Position = UDim2.new(
         startPosition.X.Scale,
