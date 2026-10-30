@@ -1,6 +1,6 @@
 local SOURCES = {
-    fonted = "https://raw.githubusercontent.com/DerbyBloom/DerbyBloom/refs/heads/main/main1",
-    plain = "https://raw.githubusercontent.com/DerbyBloom/DerbyBloom/refs/heads/main/main2",
+    fonted = "https://raw.githubusercontent.com/DerbyBloom/DerbyBloom/refs/heads/main/games/mm2-1.lua",
+    plain = "https://raw.githubusercontent.com/DerbyBloom/DerbyBloom/refs/heads/main/games/mm2-2.lua",
 }
 
 local MM2_PLACE_IDS = {
