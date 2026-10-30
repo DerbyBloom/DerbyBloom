@@ -1,3 +1,8 @@
+-- DerbyBloom Universal Loader v2.0.0
+-- Add games by editing the GAMES table.
+-- Entries with `path` do not perform font detection.
+-- The current MM2 entry uses only the no-font variant: games/mm2-2.lua.
+
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -45,6 +50,9 @@ local GAMES = {
             name = "Murder Mystery 2",
             path = "games/mm2-2.lua",
         },
+        -- Single-script game: no font detection.
+        -- [123456789] = { name = "Meu Jogo", path = "games/meu-jogo.lua" },
+        -- For an optional two-variant game, define fonted/plain only in that entry.
     },
 }
 
