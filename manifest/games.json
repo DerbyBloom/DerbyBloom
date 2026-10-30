@@ -1,0 +1,21 @@
+{
+  "loaderVersion": "3.0.0",
+  "maintenance": false,
+  "announcement": {
+    "enabled": false,
+    "title": "DerbyBloom Update",
+    "message": "",
+    "type": "info"
+  },
+  "games": [
+    {
+      "id": "mm2",
+      "name": "Murder Mystery 2",
+      "version": "2.0.0",
+      "enabled": true,
+      "placeIds": [142823291, 142823292],
+      "gameIds": [66654135],
+      "script": "games/mm2-2.lua"
+    }
+  ]
+}
