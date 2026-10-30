@@ -3,7 +3,7 @@
 
 local OWNER = "DerbyBloom"
 local REPOSITORY = "DerbyBloom"
-local BRANCH = "main"
+local BRANCH = "dev"
 local BASE = string.format("https://raw.githubusercontent.com/%s/%s/refs/heads/%s/", OWNER, REPOSITORY, BRANCH)
 
 local function loadRemote(path)
