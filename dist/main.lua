@@ -1,6 +1,6 @@
 local SCRIPTS = {
     {
-        name = "Murderer Mystery 2",
+        name = "Murder Mystery 2",
         placeIds = { 142823291 },
         raw = "https://raw.githubusercontent.com/DerbyBloom/DerbyBloom/refs/heads/main/dist/init.lua",
     },
