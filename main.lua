@@ -10,7 +10,7 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local CONFIG = {
     Owner = "DerbyBloom",
     Repository = "DerbyBloom",
-    Branch = "main",
+    Branch = "dev",
     Version = "1.0.3",
     Icon = "rbxassetid://92813401609681",
 }
