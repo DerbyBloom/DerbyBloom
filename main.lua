@@ -33,17 +33,17 @@ local GAMES = {
     PlaceIds = {
         [142823291] = {
             name = "Murder Mystery 2",
-            path = "games/mm2.lua",
+            path = "games/mm2-test.lua",
         },
         [142823292] = {
             name = "Murder Mystery 2",
-            path = "games/mm2.lua",
+            path = "games/mm2-test.lua",
         },
     },
     GameIds = {
         [66654135] = {
             name = "Murder Mystery 2",
-            path = "games/mm2.lua",
+            path = "games/mm2-test.lua",
         },
     },
 }
