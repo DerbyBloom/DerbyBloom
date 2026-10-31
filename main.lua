@@ -11,7 +11,7 @@ local CONFIG = {
     Owner = "DerbyBloom",
     Repository = "DerbyBloom",
     Branch = "main",
-    Version = "2.0.0",
+    Version = "1.0.3",
     Icon = "rbxassetid://92813401609681",
 }
 
