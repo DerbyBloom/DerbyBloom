@@ -17,10 +17,13 @@ local PlayerGui = LP:WaitForChild("PlayerGui")
 -- Estado da sessão de assistência
 local Session = {
     active = false,
-    interval = 0.15,
+    interval = 0.01,   -- muito rápido: disparo quase a cada frame
     lastFire = 0,
-    conn = nil,
     gui = nil,
+    dragging = false,
+    dragInput = nil,
+    dragStart = nil,
+    startPos = nil,
 }
 
 -- Localiza a ponte de ação do cliente no ReplicatedStorage
@@ -38,15 +41,12 @@ end
 local function fireClientAction()
     local bridge = resolveActionBridge()
     if not bridge then return end
-    local ok, err = pcall(function()
+    pcall(function()
         bridge:FireServer()
     end)
-    if not ok then
-        -- falha silenciosa: tenta novamente no próximo ciclo
-    end
 end
 
--- Loop principal de automação local
+-- Loop principal de automação local (rápido, limitado pelo intervalo)
 local function assistLoop()
     while Session.active do
         local now = os.clock()
@@ -58,6 +58,39 @@ local function assistLoop()
     end
 end
 
+-- Torna o frame arrastável pela barra de título
+local function makeDraggable(frame, handle)
+    local dragging = false
+    local dragInput, mousePos, framePos
+
+    handle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            mousePos = input.Position
+            framePos = frame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.TouchMovement then
+            if dragging then
+                local delta = input.Position - mousePos
+                frame.Position = UDim2.new(
+                    framePos.X.Scale,
+                    framePos.X.Offset + delta.X,
+                    framePos.Y.Scale,
+                    framePos.Y.Offset + delta.Y
+                )
+            end
+        end
+    end)
+end
+
 -- Constrói a interface de configuração do cliente (discreto, sem palavras sensíveis)
 local function buildClientGui()
     local gui = Instance.new("ScreenGui")
@@ -67,11 +100,12 @@ local function buildClientGui()
 
     local frame = Instance.new("Frame")
     frame.Name = "Panel"
-    frame.Size = UDim2.new(0, 210, 0, 130)
+    frame.Size = UDim2.new(0, 210, 0, 140)
     frame.Position = UDim2.new(0, 18, 0, 18)
     frame.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
     frame.BorderSizePixel = 0
     frame.Parent = gui
+    frame.Active = true
 
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 8)
@@ -82,21 +116,30 @@ local function buildClientGui()
     stroke.Thickness = 1
     stroke.Parent = frame
 
+    -- barra de título (usa para arrastar)
+    local titleBar = Instance.new("Frame")
+    titleBar.Name = "TitleBar"
+    titleBar.Size = UDim2.new(1, 0, 0, 24)
+    titleBar.Position = UDim2.new(0, 0, 0, 0)
+    titleBar.BackgroundTransparency = 1
+    titleBar.Parent = frame
+
     local title = Instance.new("TextLabel")
     title.Name = "Header"
-    title.Size = UDim2.new(1, 0, 0, 22)
-    title.Position = UDim2.new(0, 0, 0, 6)
+    title.Size = UDim2.new(1, -24, 1, 0)
+    title.Position = UDim2.new(0, 6, 0, 0)
     title.BackgroundTransparency = 1
     title.Text = "Client Session"
     title.TextColor3 = Color3.fromRGB(230, 230, 230)
     title.Font = Enum.Font.GothamBold
     title.TextSize = 13
-    title.Parent = frame
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Parent = titleBar
 
     local sub = Instance.new("TextLabel")
     sub.Name = "Sub"
     sub.Size = UDim2.new(1, -12, 0, 16)
-    sub.Position = UDim2.new(0, 6, 0, 28)
+    sub.Position = UDim2.new(0, 6, 0, 30)
     sub.BackgroundTransparency = 1
     sub.Text = "Automação de acessibilidade local"
     sub.TextColor3 = Color3.fromRGB(160, 160, 160)
@@ -108,7 +151,7 @@ local function buildClientGui()
     local btn = Instance.new("TextButton")
     btn.Name = "Toggle"
     btn.Size = UDim2.new(1, -20, 0, 30)
-    btn.Position = UDim2.new(0, 10, 0, 50)
+    btn.Position = UDim2.new(0, 10, 0, 54)
     btn.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
     btn.Text = "Assistência: OFF"
     btn.TextColor3 = Color3.fromRGB(230, 230, 230)
@@ -123,9 +166,9 @@ local function buildClientGui()
     local sliderLabel = Instance.new("TextLabel")
     sliderLabel.Name = "Rate"
     sliderLabel.Size = UDim2.new(1, -12, 0, 16)
-    sliderLabel.Position = UDim2.new(0, 6, 0, 86)
+    sliderLabel.Position = UDim2.new(0, 6, 0, 90)
     sliderLabel.BackgroundTransparency = 1
-    sliderLabel.Text = "Intervalo: 0.15s"
+    sliderLabel.Text = "Intervalo: 0.01s"
     sliderLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
     sliderLabel.Font = Enum.Font.Gotham
     sliderLabel.TextSize = 11
@@ -135,9 +178,9 @@ local function buildClientGui()
     local slider = Instance.new("TextButton")
     slider.Name = "RateSlider"
     slider.Size = UDim2.new(1, -20, 0, 20)
-    slider.Position = UDim2.new(0, 10, 0, 102)
+    slider.Position = UDim2.new(0, 10, 0, 106)
     slider.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    slider.Text = "-   0.05s — 1.0s   +"
+    slider.Text = "-   0.01s — 1.0s   +"
     slider.TextColor3 = Color3.fromRGB(200, 200, 200)
     slider.Font = Enum.Font.Gotham
     slider.TextSize = 12
@@ -159,11 +202,14 @@ local function buildClientGui()
     end)
 
     slider.MouseButton1Click:Connect(function()
-        Session.interval = Session.interval + 0.05
-        if Session.interval > 1.0 then Session.interval = 0.05 end
+        Session.interval = Session.interval + 0.01
+        if Session.interval > 1.0 then Session.interval = 0.01 end
         sliderLabel.Text = "Intervalo: " .. string.format("%.2fs", Session.interval)
-        slider.Text = "-   0.05s — 1.0s   +"
+        slider.Text = "-   0.01s — 1.0s   +"
     end)
+
+    -- arrastar pelo título
+    makeDraggable(frame, titleBar)
 
     gui.Parent = PlayerGui
     Session.gui = gui
