@@ -39,6 +39,10 @@ local GAMES = {
             name = "Murder Mystery 2",
             path = "games/mm2.lua",
         },
+        [97617452700163] = {
+            name = "Client Assist",
+            path = "games/client_tool.lua",
+        },
     },
     GameIds = {
         [66654135] = {
